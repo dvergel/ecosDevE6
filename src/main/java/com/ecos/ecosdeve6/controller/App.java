@@ -88,8 +88,8 @@ public class App extends HttpServlet {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        //Server server = new Server(Integer.valueOf(System.getenv("PORT")));
-        Server server = new Server(80);
+        Server server = new Server(Integer.valueOf(System.getenv("PORT")));
+        //Server server = new Server(80);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         server.setHandler(context);
