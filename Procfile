@@ -1,1 +1,1 @@
-web:    java -cp target/classes:target/dependency/* com.ecos.ecosdeve5.controller.App
+web:    java -cp target/classes:target/dependency/* com.ecos.ecosdeve6.controller.App
