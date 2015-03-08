@@ -71,6 +71,7 @@ public class CalcularSimpsonRule {
      * @param x
      * @param num_seg
      * @param dof
+     * @param p  
      */
     public CalcularSimpsonRule(BigDecimal e, BigDecimal x, BigDecimal num_seg, BigDecimal dof, BigDecimal p) {
         this.proyectarP = p;
@@ -117,9 +118,7 @@ public class CalcularSimpsonRule {
         setW(x.divide(num_seg, MathContext.DECIMAL64));//m
         getList().add(BigDecimal.ZERO);
         BigDecimal acumulador = getW();
-        System.out.println("nuevo intento");
         for (int index = 1; index <= num_seg.intValue(); index++) {
-            System.out.println("valor x " + index + " :" + acumulador);
             getList().add(acumulador);
             acumulador = acumulador.add(getW());//m
         }
@@ -272,20 +271,25 @@ public class CalcularSimpsonRule {
         }
     }
 
+    /**
+     * proyectarX
+     * 
+     * proyecta el valor de x hasta obtener el valor deseado de p
+     * 
+     * @throws Exception
+     */
     public void proyectarX() throws Exception {
         try {
             CalcularSimpsonRule intento = new CalcularSimpsonRule(this.e, this.x, this.num_seg, this.dof);
             BigDecimal acumulador_num_seg = BigDecimal.ZERO;
             int signo;
             intento.calcularP();
-            signo=intento.getP().setScale(5, RoundingMode.HALF_UP).compareTo(getProyectarP().setScale(5, RoundingMode.HALF_UP));
-            System.out.println("primer intento p " + intento.getP().setScale(5, RoundingMode.HALF_UP));
+            signo = intento.getP().setScale(5, RoundingMode.HALF_UP).compareTo(getProyectarP().setScale(5, RoundingMode.HALF_UP));
             getIntentos().add(intento);
             do {
                 acumulador_num_seg = acumulador_num_seg.add(this.num_seg.multiply(new BigDecimal(2)));
                 if (!getProyectarP().equals(BigDecimal.ZERO) && getIntentos().size() >= 2) {
                     setAuxiliar(getResultado());
-                    System.out.println("valor d :" + getD().setScale(5, RoundingMode.HALF_UP));
                     if ((intento.getP().setScale(5, RoundingMode.HALF_UP).compareTo(getProyectarP().setScale(5, RoundingMode.HALF_UP)) < 0) && !intento.getP().setScale(5, RoundingMode.HALF_UP).equals(getAuxiliar().setScale(5, RoundingMode.HALF_UP))) {
                         setX(getX().add(getD()));
                     } else if ((intento.getP().setScale(5, RoundingMode.HALF_UP).compareTo(getProyectarP().setScale(5, RoundingMode.HALF_UP)) > 0) && !intento.getP().setScale(5, RoundingMode.HALF_UP).equals(getAuxiliar().setScale(5, RoundingMode.HALF_UP))) {
@@ -294,22 +298,14 @@ public class CalcularSimpsonRule {
                 }
                 intento = new CalcularSimpsonRule(this.e, this.x, this.num_seg.multiply(new BigDecimal(2)), this.dof);
                 intento.calcularP();
-                if(signo!=intento.getP().setScale(5, RoundingMode.HALF_UP).compareTo(getProyectarP().setScale(5, RoundingMode.HALF_UP))){
+                if (signo != intento.getP().setScale(5, RoundingMode.HALF_UP).compareTo(getProyectarP().setScale(5, RoundingMode.HALF_UP))) {
                     setD(d.divide(new BigDecimal(2), MathContext.DECIMAL64));
                 }
-                signo=intento.getP().setScale(5, RoundingMode.HALF_UP).compareTo(getProyectarP().setScale(5, RoundingMode.HALF_UP));
-                System.out.println("re intento p " + intento.getP().setScale(5, RoundingMode.HALF_UP));
-                System.out.println("p proyectado " + getProyectarP().setScale(5, RoundingMode.HALF_UP));
+                signo = intento.getP().setScale(5, RoundingMode.HALF_UP).compareTo(getProyectarP().setScale(5, RoundingMode.HALF_UP));
                 if (intento.getP().setScale(5, RoundingMode.HALF_UP).equals(getProyectarP().setScale(5, RoundingMode.HALF_UP))) {
                     setFlag(true);
                 }
-                System.out.println("re intento p " + intento.getP().setScale(5, RoundingMode.HALF_UP));
-                System.out.println("flag " + intento.isFlag());
                 getIntentos().add(intento);
-                System.out.println("intento anterior " + intentos.get(intentos.size() - 2).getP().setScale(5, RoundingMode.HALF_UP));
-                System.out.println("intento actual " + intentos.get(intentos.size() - 1).getP().setScale(5, RoundingMode.HALF_UP));
-                System.out.println("diferencia " + intentos.get(intentos.size() - 2).getP().setScale(5, RoundingMode.HALF_UP).subtract(intentos.get(intentos.size() - 1).getP().setScale(5, RoundingMode.HALF_UP)).abs().setScale(5, RoundingMode.HALF_UP).compareTo(getE().setScale(5, RoundingMode.HALF_UP)));
-                System.out.println("resta " + intentos.get(intentos.size() - 2).getP().setScale(5, RoundingMode.HALF_UP).subtract(intentos.get(intentos.size() - 1).getP().setScale(5, RoundingMode.HALF_UP)).abs().setScale(5, RoundingMode.HALF_UP));
             } while ((intentos.get(intentos.size() - 2).getP().setScale(5, RoundingMode.HALF_UP).subtract(intentos.get(intentos.size() - 1).getP().setScale(5, RoundingMode.HALF_UP)).abs().setScale(5, RoundingMode.HALF_UP).compareTo(getE().setScale(5, RoundingMode.HALF_UP)) >= 0) || (!isFlag()));
             setResultado(intentos.get(intentos.size() - 1).getP().setScale(5, RoundingMode.HALF_UP));
         } catch (Exception ex) {
@@ -493,34 +489,66 @@ public class CalcularSimpsonRule {
         this.resultado = resultado;
     }
 
+    /**
+     *
+     * @return
+     */
     public BigDecimal getProyectarP() {
         return proyectarP;
     }
 
+    /**
+     *
+     * @param proyectarP
+     */
     public void setProyectarP(BigDecimal proyectarP) {
         this.proyectarP = proyectarP;
     }
 
+    /**
+     *
+     * @return
+     */
     public BigDecimal getAuxiliar() {
         return auxiliar;
     }
 
+    /**
+     *
+     * @param auxiliar
+     */
     public void setAuxiliar(BigDecimal auxiliar) {
         this.auxiliar = auxiliar;
     }
 
+    /**
+     *
+     * @return
+     */
     public BigDecimal getD() {
         return d;
     }
 
+    /**
+     *
+     * @param d
+     */
     public void setD(BigDecimal d) {
         this.d = d;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isFlag() {
         return flag;
     }
 
+    /**
+     *
+     * @param flag
+     */
     public void setFlag(boolean flag) {
         this.flag = flag;
     }
